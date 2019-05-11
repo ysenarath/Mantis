@@ -1,0 +1,15 @@
+{% set title = 'Mantis' %}
+
+{% set navbar = {
+        'brand': { 'href' : '/' , 'id': 'navbarBrand', 'name': title },
+        'links': [
+            ['/', 'home', 'Home'],
+            ['/explorer', 'explorer', 'Explorer'],
+            ['/corpus', 'corpus', 'Corpus'],
+        ]
+} %}
+
+{% set configs = {
+    'title': title,
+    'navbar': navbar
+} %}

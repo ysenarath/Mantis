@@ -1,0 +1,200 @@
+{% extends "pages/base.html" %}
+
+{% from 'components/markit.html' import markit %}
+
+{% block title %}
+    {{ super() }} - Explorer
+{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components/markit.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/explorer.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="explorer-wrapper">
+            <div class="corpora-wrapper">
+                <ul class="corpus-list">
+                    {% for corpus in corpora %}
+                        <ui class="corpus-item" data-id="{{ corpus.id }}">
+                            <a href="/explorer/corpus?id={{ corpus.id }}">{{ corpus.name }}</a>
+                        </ui>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="documents-wrapper">
+                <ul class="document-list">
+                    {% if selected_corpus is not none %}
+                        {% if selected_corpus.documents | length > 0 %}
+                            {% for document in selected_corpus.documents %}
+                                <ui class="document" data-id="{{ document.id }}">
+                                    {{ markit(document.id, document.text) }}
+                                </ui>
+                            {% endfor %}
+                        {% else %}
+                            <ui class="document">
+                                <div>Empty Corpus. You will see the documents here once added.</div>
+                            </ui>
+                        {% endif %}
+                        <ui class="document">
+                            {# <button class="btn btn-primary">Add Document(s)</button>#}
+                            <form method=post enctype=multipart/form-data
+                                  action="/explorer/corpus/create?id={{ selected_corpus.id }}">
+                                <input id="hiddenFileBtn" class="btn btn-primary" type=file name=file
+                                       onchange="this.form.submit()" hidden>
+                                <input id="uploadDocumentBtn" class="btn btn-primary" type=button
+                                       onclick="$('#hiddenFileBtn').click()"
+                                       value="Add Document(s)">
+                            </form>
+                        </ui>
+                    {% else %}
+                        <ui class="document">
+                            <div>Select a corpus to continue.</div>
+                        </ui>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="features-wrapper">
+                <div class="selection-wrapper"></div>
+                <div class="annotation-wrapper"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block templates %}
+    <template id="selection-template">
+        <form method="POST">
+            <input name="id"/>
+            <input name="span_start"/>
+            <input name="span_length"/>
+            <ul class="features"></ul>
+            <button class="btn btn-primary" type="button" data-action="create">+</button>
+            <button class="btn btn-primary" type="submit">Create</button>
+        </form>
+    </template>
+    <template id="annotation-template">
+        <form method="POST">
+            <input name="id"/>
+            <input name="span_start"/>
+            <input name="span_length"/>
+            <ul class="features"></ul>
+            <button class="btn btn-primary" type="button" data-action="create">+</button>
+            <button class="btn btn-primary" type="submit">Update</button>
+            <button class="btn btn-primary" type="submit" data-action="delete">Delete</button>
+        </form>
+    </template>
+    <template id="feature-item-template">
+        <li>
+            <input name="feature_key"/>
+            <input name="feature_value"/>
+            <button class="btn btn-primary" type="button" data-action="remove">-</button>
+        </li>
+    </template>
+{% endblock %}
+
+{% block body %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/components/markit.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/pages/explorer.js') }}"></script>
+    <script>
+        let highlights = new Map();
+
+        let selections = [];
+
+        function getAnnotations(ids) {
+            return new Promise((resolve, reject) => {
+                let temp = [];
+                ids.forEach((id) => {
+                    $.ajax({
+                        url: `/api/annotation?id=${id}`,
+                        dataType: "json",
+                        contentType: "application/json",
+                        async: false,
+                        success: function (result) {
+                            if (result.status === 'failed') {
+                                resolve(result)
+                            } else {
+                                temp.push(result.data);
+                            }
+                        },
+                        error: function () {
+                            resolve({'status': 'failed', 'data': 'Couldn\'t reach the server.'})
+                        }
+                    });
+                });
+                resolve({'status': 'success', 'data': temp});
+            });
+        }
+
+        function appendFeature(template, key = '', value = '') {
+            let temp = $($("#feature-item-template").html());
+            temp.find('[name=feature_key]').attr('value', key);
+            temp.find('[name=feature_value]').attr('value', value);
+            temp.find('button[data-action=remove]').click(() => {
+                temp.remove();
+            });
+            template.find('.features').append(temp)
+        }
+
+        async function update() {
+            $('.selection-wrapper').html('');
+            highlights.forEach((span, id) => {
+                let template = $($("#selection-template").html());
+                template.attr('action', '/explorer/annotation/create');
+                template.find('[name=id]').attr('value', id);
+                template.find('[name=span_start]').attr('value', span[0]);
+                template.find('[name=span_length]').attr('value', span[1]);
+                template.find('button[data-action=create]').click(() => appendFeature(template));
+                $('.selection-wrapper').append(template)
+            });
+            let result = await getAnnotations(selections);
+            if (result.status === 'success') {
+                let annotation_wrapper = $('<div>');
+                result.data.forEach(it => {
+                    let template = $($("#annotation-template").html());
+                    template.attr('action', `/explorer/annotation/update?id=${it.id}`);
+                    template.find('[name=id]').attr('value', it.document_id);
+                    template.find('[name=span_start]').attr('value', it.span[0]);
+                    template.find('[name=span_length]').attr('value', it.span[1]);
+                    Object.keys(it.features).forEach(function (key) {
+                        appendFeature(template, key, it.features[key])
+                    });
+                    template.find('button[data-action=create]').click(() => appendFeature(template));
+                    template.find('button[data-action=delete]').attr('action', `/explorer/annotation/delete?id=${it.id}`);
+                    annotation_wrapper.append(template)
+                });
+                $('.annotation-wrapper').html(annotation_wrapper.html());
+            } else {
+                console.error('Request failed: ' + result.data);
+            }
+        }
+
+        markit.onload = function (e) {
+            // Load Annotations for document with id = e
+            $.getJSON(`/api/document?id=${e}`, function (result) {
+                if (result.status === 'success') {
+                    result.data.annotations.forEach(annotation => {
+                        markit.elements[e].annotations.push(annotation);
+                    });
+                }
+            });
+        };
+
+        markit.onclick = function (e) {
+            selections = e;
+            update();
+        };
+
+        markit.onselect = function (e) {
+            if (e.span === null) {
+                highlights.delete(e.document);
+            } else {
+                highlights.set(e.document, e.span);
+            }
+            update();
+        };
+    </script>
+{% endblock %}

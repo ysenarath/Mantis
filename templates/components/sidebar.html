@@ -1,0 +1,44 @@
+<div class="wrapper">
+
+    <!-- Sidebar -->
+    <nav id="sidebar">
+        <div class="sidebar-content">
+            {% block sidebar %}
+                {% if sidebar_header is defined %}
+                    <div class="sidebar-header">
+                        {{ sidebar_header }}
+                    </div>
+                {% endif %}
+                {% if sidebar_items is defined %}
+                    <ul class="list-unstyled sidebar-item-list">
+                        {% set active_page = active_page | default('documents') %}
+                        {% for href, id, caption in sidebar_items %}
+                            {% if active_page == id %}
+                                <li class="sidebar-item active">
+                                    <a class="sidebar-link" href="{{ href }}"> {{ caption }} <span
+                                            class="sr-only">(current)</span></a>
+                                </li>
+                            {% else %}
+                                <li class="sidebar-item">
+                                    <a class="sidebar-link" href="{{ href }}"> {{ caption }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endblock %}
+        </div>
+        <div class="sidebar-btn">
+            <button id="sidebarToggleBtn" class="btn btn-default" type="button" aria-label="Toggle sidebar">
+                <span id="showSidebarIcon" class="sidebar-icon"><i class="fas fa-angle-right active"></i></span>
+                <span id="hideSidebarIcon" class="sidebar-icon active"><i class="fas fa-angle-left"></i></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div id="content">
+        {% block content %}{% endblock %}
+    </div>
+
+</div>

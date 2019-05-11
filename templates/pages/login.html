@@ -1,0 +1,27 @@
+{% extends "pages/base.html" %}
+
+{% block title %}{{ super() }} - Dashboard{% endblock %}
+
+{% block head %}
+    {{ super() }}
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <form action="/login" method="post">
+                    <label for="usernameField" hidden></label>
+                    <input id="usernameField" type=text name=username>
+                    <label for="passwordField" hidden></label>
+                    <input id="passwordField" type=password name=password>
+                    <input type=submit value=Login>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body %}
+    {{ super() }}
+{% endblock %}

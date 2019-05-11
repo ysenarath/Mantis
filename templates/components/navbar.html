@@ -1,0 +1,30 @@
+{% macro navbar(config) %}
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        {% if 'brand' in config %}
+            {% set brand = config.brand %}
+            {% if brand %}
+                <a id='{{ brand.id }}' class="navbar-brand" href="{{ brand.href }}">{{ brand.name }}</a>
+            {% endif %}
+        {% endif %}
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                {% for href, id, name in config.links %}
+                    {% set active_page = active_page | default('home') %}
+                    {% if active_page == id %}
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{{ href }}"> {{ name }} <span class="sr-only">(current)</span></a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ href }}"> {{ name }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </nav>
+{% endmacro %}

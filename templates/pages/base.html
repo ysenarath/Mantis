@@ -1,0 +1,41 @@
+{% from 'components/navbar.html' import navbar %}
+{% from 'configs.html' import configs %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% block head %}
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>{% block title %}{{ configs.title }}{% endblock %}</title>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap/bootstrap.min.css') }}">
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/base.css') }}">
+        <!-- Font Awesome JS -->
+        <script src="{{ url_for('static', filename='fontawesome/js/solid.js') }}"></script>
+        <script src="{{ url_for('static', filename='fontawesome/js/fontawesome.js') }}"></script>
+    {% endblock %}
+</head>
+
+<body>
+{% block body %}
+    {{ navbar(configs.navbar) }}
+
+    {% block content %}{% endblock %}
+
+    {% block templates %}{% endblock %}
+
+    <script src="{{ url_for('static', filename='js/jquery/jquery-3.4.0.min.js') }}"></script>
+    <!-- Popper.JS -->
+    <script src="{{ url_for('static', filename='js/popper/popper.min.js') }}"></script>
+    <!-- Bootstrap JS -->
+    <script src="{{ url_for('static', filename='js/bootstrap/bootstrap.min.js') }}"></script>
+    <!-- Base JS -->
+    <script src="{{ url_for('static', filename='js/pages/base.js') }}"></script>
+{% endblock %}
+</body>
+
+</html>
