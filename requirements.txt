@@ -1,3 +1,4 @@
+six
 werkzeug
 jinja2
 flask

@@ -8,4 +8,4 @@ class Message:
 
     def __init__(self, t, m):
         self.type = t
-        self.message = m
+        self.text = m

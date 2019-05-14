@@ -37,7 +37,13 @@
             </div>
         </div>
         <div>
-            {{ messages }}
+            {% for message in messages %}
+                {% if message.type == 0 %}
+                    <div><p>{{ message.text }}</p></div>
+                {% else %}
+                    <div><p>{{ message.text }}</p></div>
+                {% endif %}
+            {% endfor %}
         </div>
     </div>
 {% endblock %}
@@ -206,7 +212,7 @@
             {% else %}
                 let documentList = $('.document-list');
                 let msg = $('<li>This corpus doesn\'t dontain any documents!</li>');
-                temp.append(msg);
+                documentList.append(msg);
                 let createDocumentForm = $($('#create-document-template').html());
                 createDocumentForm.attr('action', '/explorer/corpus/add?id={{ selected_corpus.id }}');
                 documentList.append(createDocumentForm);
