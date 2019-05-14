@@ -28,9 +28,6 @@ def render_explorer():
     messages = []
     session = db.Session()
     corpora = session.query(Corpus).all()
-    if len(corpora) == 0:
-        msg = 'Please contact developer. The database contains more than one corpus with provided id.'
-        messages.append(Message(Message.Type.ERROR, msg))
     try:
         html = render_template('pages/explorer.html', messages=messages, corpora=corpora, selected_corpus=None)
         return html
@@ -81,7 +78,7 @@ def render_explorer_corpus():
         session.close()
 
 
-@explorer_page.route('/corpus/create', methods=['POST'])
+@explorer_page.route('/corpus/add', methods=['POST'])
 def render_explorer_corpus_create():
     messages = []
     if 'id' not in request.args:
@@ -188,7 +185,7 @@ def render_explorer_annotation_update():
         session.close()
 
 
-@explorer_page.route('/annotation/delete', methods=['GET'])
+@explorer_page.route('/annotation/delete', methods=['GET', 'POST'])
 def render_explorer_annotation_delete():
     messages = []
     session = Session()
@@ -211,11 +208,13 @@ def render_explorer_annotation_delete():
         username = flask_session['username']
         user = session.query(User).filter_by(username=username).one()
         owner_id = user.id
-        annotation = session.query(Annotation).get(id_).one()
+        annotation = session.query(Annotation).get(id_)
+        corpus_id = annotation.document.corpus.id
         if owner_id != annotation.owner_id:
             raise NoResultFound()
+        session.delete(annotation)
         session.commit()
-        return redirect(url_for('.render_explorer_corpus', id=annotation.document.corpus.id))
+        return redirect(url_for('.render_explorer_corpus', id=corpus_id))
     except NoResultFound as _:
         msg = 'Invalid username. Your access to this operation has been revoked.'
         messages.append(Message(Message.Type.ERROR, msg))

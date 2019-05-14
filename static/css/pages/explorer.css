@@ -52,3 +52,21 @@
         min-width: 350px;
     }
 }
+
+:root {
+    --markit-bg-color: transparent;
+    --markit-selection-color: lightcoral;
+}
+
+.markit {
+    padding: 15px 15px;
+    background: var(--markit-bg-color);
+}
+
+.markit::selection {
+    /*background: transparent !important;*/
+}
+
+.markit mark.selection {
+    background: var(--markit-selection-color);
+}

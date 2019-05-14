@@ -1,0 +1,43 @@
+<!--suppress HtmlFormInputWithoutLabel, HtmlUnknownTarget -->
+{% macro templates() %}
+    <template id="create-annotation-template">
+        <form method="POST">
+            <input name="id"/>
+            <input name="span_start"/>
+            <input name="span_length"/>
+            <ul class="features"></ul>
+            <button class="btn btn-primary" type="button" data-action="create">+</button>
+            <button class="btn btn-primary" type="submit">Create</button>
+        </form>
+    </template>
+
+    <template id="update-annotation-template">
+        <form method="POST">
+            <input name="id"/>
+            <input name="span_start"/>
+            <input name="span_length"/>
+            <ul class="features"></ul>
+            <button class="btn btn-primary" type="button" data-action="create">+</button>
+            <button class="btn btn-primary" type="submit" data-action="update">Update</button>
+            <button class="btn btn-primary" type="submit" data-action="delete">Delete</button>
+        </form>
+    </template>
+
+    <template id="feature-item-template">
+        <li>
+            <input name="feature_key"/>
+            <input name="feature_value"/>
+            <button class="btn btn-primary" type="button" data-action="remove">-</button>
+        </li>
+    </template>
+
+    <template id="create-document-template">
+        <form method=post enctype=multipart/form-data>
+            <input id="hiddenFileBtn" class="btn btn-primary" type=file name=file
+                   onchange="this.form.submit()" hidden>
+            <input id="uploadDocumentBtn" class="btn btn-primary" type=button
+                   onclick="$('#hiddenFileBtn').click()"
+                   value="Add Document(s)">
+        </form>
+    </template>
+{% endmacro %}
