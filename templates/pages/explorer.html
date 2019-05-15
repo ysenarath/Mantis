@@ -36,15 +36,6 @@
                 <div class="update-annotation-wrapper"></div>
             </div>
         </div>
-        <div>
-            {% for message in messages %}
-                {% if message.type == 0 %}
-                    <div><p>{{ message.text }}</p></div>
-                {% else %}
-                    <div><p>{{ message.text }}</p></div>
-                {% endif %}
-            {% endfor %}
-        </div>
     </div>
 {% endblock %}
 

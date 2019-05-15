@@ -188,15 +188,19 @@ def render_explorer_annotation_delete():
                 if user is not None:
                     owner_id = user.id
                     annotation = app.database.query(Annotation).get(id_)
-                    corpus_id = annotation.document.corpus.id
-                    if owner_id == annotation.owner_id:
-                        app.database.delete(annotation)
-                        app.database.commit()
-                        msg = 'Annotation (id=\'{}\') deleted successfully'.format(id_)
-                        app.messages.append(Message(Message.Type.SUCCESS, msg))
-                        return redirect(url_for('.render_explorer_corpus', id=corpus_id))
+                    if annotation is not None:
+                        corpus_id = annotation.document.corpus.id
+                        if owner_id == annotation.owner_id:
+                            app.database.delete(annotation)
+                            app.database.commit()
+                            msg = 'Annotation (id=\'{}\') deleted successfully'.format(id_)
+                            app.messages.append(Message(Message.Type.SUCCESS, msg))
+                            return redirect(url_for('.render_explorer_corpus', id=corpus_id))
+                        else:
+                            msg = 'You are not authorized to delete annotation with ID \'{}\''.format(id_)
+                            app.messages.append(Message(Message.Type.ERROR, msg))
                     else:
-                        msg = 'You are not authorized to delete annotation with ID \'{}\''.format(id_)
+                        msg = 'Unable to find an annotation with the provided ID \'{}\''.format(id_)
                         app.messages.append(Message(Message.Type.ERROR, msg))
                 else:
                     msg = 'Invalid username'

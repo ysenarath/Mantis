@@ -4,8 +4,9 @@
 }
 
 .corpora-wrapper {
-    max-width: 175px;
-    min-width: 125px;
+    max-width: 200px;
+    min-width: 200px;
+    width: 100%;
     padding: 15px 0 15px 15px;
 }
 

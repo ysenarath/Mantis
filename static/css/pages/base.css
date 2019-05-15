@@ -1,3 +1,40 @@
+html, body {
+    height: 100%;
+}
+
+
 .navbar {
     min-height: 56px;
+}
+
+.notifications {
+    display: flex;
+    flex-flow: column;
+    position: absolute;
+    max-width: 450px;
+    min-width: 250px;
+    width: 100%;
+    top: 56px;
+    right: 0;
+    padding: 15px;
+    pointer-events: none;
+}
+
+.alert .close {
+    pointer-events: auto;
+}
+
+
+@media screen and (max-width: 250px) {
+    .notifications {
+        min-width: 0;
+    }
+}
+
+.notifications:hover {
+    opacity: 0.5;
+}
+
+.annotations-wrapper form {
+    padding: 15px 0 0 0;
 }

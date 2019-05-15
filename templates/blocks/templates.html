@@ -2,9 +2,9 @@
 {% macro templates() %}
     <template id="create-annotation-template">
         <form method="POST">
-            <input name="id"/>
-            <input name="span_start"/>
-            <input name="span_length"/>
+            <input name="id" placeholder="Document" readonly/>
+            <input name="span_start" placeholder="Start"/>
+            <input name="span_length" placeholder="Length"/>
             <ul class="features"></ul>
             <button class="btn btn-primary" type="button" data-action="create">+</button>
             <button class="btn btn-primary" type="submit">Create</button>
@@ -13,9 +13,9 @@
 
     <template id="update-annotation-template">
         <form method="POST">
-            <input name="id"/>
-            <input name="span_start"/>
-            <input name="span_length"/>
+            <input name="id" placeholder="Document" readonly/>
+            <input name="span_start" placeholder="Start"/>
+            <input name="span_length" placeholder="Length"/>
             <ul class="features"></ul>
             <button class="btn btn-primary" type="button" data-action="create">+</button>
             <button class="btn btn-primary" type="submit" data-action="update">Update</button>
