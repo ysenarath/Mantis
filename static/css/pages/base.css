@@ -38,3 +38,28 @@ html, body {
 .annotations-wrapper form {
     padding: 15px 0 0 0;
 }
+
+.dropdown-toggle {
+    font-size: 25px;
+}
+
+.dropdown-toggle::after {
+    content: none;
+}
+
+.dropdown-menu-top {
+    top: 56px;
+    min-width: 250px;
+}
+
+.profile {
+    padding: 4px 24px;
+}
+
+
+.profile > .avatar {
+    vertical-align: middle;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}

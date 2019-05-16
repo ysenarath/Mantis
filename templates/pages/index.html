@@ -7,20 +7,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col">
-                {% if username is not none %}
-                    Logged in as {{ username }} <br>
-                    <a href='/logout'>click here to log out</a>
-                {% else %}
-                    You are not logged in <br>
-                    <a href='/login'>click here to log in</a>
-                    <a href='/signup'>click here to sign up</a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+    <div class="container-fluid"></div>
 {% endblock %}
 
 {% block body %}
