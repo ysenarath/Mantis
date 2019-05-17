@@ -62,6 +62,15 @@
                                     <a class="btn btn-primary" role="button" href="/corpus/delete?id={{ corpus.id }}">
                                         <i class="fas fa-trash-alt"></i>
                                     </a>
+                                    <form enctype="multipart/form-data" action="/corpus/add?id={{ corpus.id }}"
+                                          method="post" hidden>
+                                        <input id="hiddenFileBtn" class="btn btn-primary" type=file name=file
+                                               onchange="this.form.submit()">
+                                    </form>
+                                    <button id="uploadDocumentBtn" class="btn btn-primary" type=button
+                                            onclick="$('#hiddenFileBtn').click()">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>

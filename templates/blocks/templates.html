@@ -30,14 +30,4 @@
             <button class="btn btn-primary" type="button" data-action="remove">-</button>
         </li>
     </template>
-
-    <template id="create-document-template">
-        <form method=post enctype=multipart/form-data>
-            <input id="hiddenFileBtn" class="btn btn-primary" type=file name=file
-                   onchange="this.form.submit()" hidden>
-            <input id="uploadDocumentBtn" class="btn btn-primary" type=button
-                   onclick="$('#hiddenFileBtn').click()"
-                   value="Add Document(s)">
-        </form>
-    </template>
 {% endmacro %}

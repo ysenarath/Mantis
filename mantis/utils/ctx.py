@@ -22,6 +22,12 @@ class SessionContext(ContextDecorator):
         else:
             return None
 
+    def __setattr__(self, key, value):
+        if key != 'database':
+            flask_session[key] = value
+        else:
+            self.__dict__['database'] = value
+
     # noinspection PyMethodMayBeStatic
     def clear(self, *keys):
         for key in keys:

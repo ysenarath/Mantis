@@ -3,19 +3,19 @@ import logging
 from flask import Blueprint, render_template, redirect, url_for, request
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
-from mantis.model import Corpus, Message
+from mantis.model import Corpus, Message, Document
 from mantis.utils import ctx
 
 __all__ = [
-    'corpus_page',
+    'page',
 ]
 
-corpus_page = Blueprint('corpus_page', __name__, template_folder='templates')
+page = Blueprint('corpus_page', __name__, template_folder='templates')
 
 logger = logging.getLogger(__name__)
 
 
-@corpus_page.route('/', methods=['GET'])
+@page.route('/', methods=['GET'])
 def render_corpus():
     with ctx.SessionContext() as app:
         corpora = app.database.query(Corpus).all()
@@ -24,7 +24,7 @@ def render_corpus():
         return html
 
 
-@corpus_page.route('/create', methods=['POST'])
+@page.route('/create', methods=['POST'])
 def render_corpus_add():
     with ctx.SessionContext() as app:
         corpus = Corpus(name=request.form['corpus_name'])
@@ -46,7 +46,7 @@ def render_corpus_add():
         return redirect(url_for('.render_corpus'))
 
 
-@corpus_page.route('/delete', methods=['GET'])
+@page.route('/delete', methods=['GET'])
 def render_corpus_delete():
     id_ = request.args.get('id', None, int)
     with ctx.SessionContext() as app:
@@ -66,7 +66,7 @@ def render_corpus_delete():
     return redirect(url_for('.render_corpus'))
 
 
-@corpus_page.route('/edit', methods=['GET', 'POST'])
+@page.route('/edit', methods=['GET', 'POST'])
 def render_corpus_edit():
     with ctx.SessionContext() as app:
         id_ = request.args.get('id', None, int)
@@ -92,3 +92,41 @@ def render_corpus_edit():
             msg = 'Invalid value for parameter ID. Found \'{}\' expected an integer.'.format(id_)
             app.messages.append(Message(Message.Type.ERROR, msg))
         return redirect(url_for('.render_corpus'))
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ['txt', 'json']
+
+
+@page.route('/add', methods=['POST'])
+def render_corpus_document_add():
+    messages = []
+    id_ = request.args.get('id', None, int)
+    if id_ is not None:
+        if 'file' in request.files:
+            file = request.files['file']
+            if file.filename != '':
+                if file and allowed_file(file.filename):
+                    with ctx.SessionContext() as app:
+                        file_data = file.read().decode('utf-8')  # latin-1
+                        for line in file_data.split('\n'):
+                            text = line.strip()
+                            document = Document(corpus_id=id_, text=text)
+                            app.database.add(document)
+                        app.database.commit()
+                        msg = 'Documents added to Corpus with ID = `{}` successfully'.format(id_)
+                        messages.append(Message(Message.Type.SUCCESS, msg))
+                else:
+                    msg = 'File not allowed in the system'
+                    messages.append(Message(Message.Type.ERROR, msg))
+            else:
+                msg = 'No selected file'
+                messages.append(Message(Message.Type.ERROR, msg))
+        else:
+            msg = 'No file part'
+            messages.append(Message(Message.Type.ERROR, msg))
+    else:
+        msg = 'Invalid value for parameter ID. ' \
+              'Found \'{}\' expected an integer'.format(request.args.get('id', None))
+        messages.append(Message(Message.Type.ERROR, msg))
+    return redirect(url_for('.render_corpus'))

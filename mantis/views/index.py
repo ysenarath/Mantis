@@ -1,69 +1,69 @@
-from flask import Blueprint, render_template, abort, session as flask_session, request, url_for, redirect
-from jinja2 import TemplateNotFound
+from flask import Blueprint, render_template, request, url_for, redirect
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from mantis.model import User, Message
-from mantis.utils.db import Session
+from mantis.utils import ctx
 
 __all__ = [
-    'index_page',
+    'page',
 ]
 
-index_page = Blueprint('index_page', __name__, template_folder='templates')
+page = Blueprint('index_page', __name__, template_folder='templates')
 
 
-@index_page.route('/')
+@page.app_context_processor
+def inject_user():
+    with ctx.SessionContext() as app:
+        try:
+            user = app.database.query(User).filter_by(username=app.username).one()
+        except NoResultFound as _:
+            user = None
+        return dict(user=user)
+
+
+@page.route('/')
 def render_index():
-    try:
-        username = None
-        if 'username' in flask_session:
-            username = flask_session['username']
-        return render_template('pages/index.html', username=username)
-    except TemplateNotFound:
-        abort(404)
+    with ctx.SessionContext() as _:
+        return render_template('pages/index.html')
 
 
-@index_page.route('/login', methods=['GET', 'POST'])
+@page.route('/login', methods=['GET', 'POST'])
 def render_login():
-    try:
+    with ctx.SessionContext() as app:
         if request.method == 'GET':
             return render_template('pages/login.html')
         else:
             messages = []
             username = request.form['username']
             password = request.form['password']
-            session = Session()
             try:
-                user = session.query(User).filter_by(username=username).one()
+                user = app.database.query(User).filter_by(username=username).one()
                 if not check_password_hash(user.password, password):
                     raise NoResultFound()
-                flask_session['username'] = username
             except NoResultFound as _:
                 msg = 'Invalid username or password.'
                 messages.append(Message(Message.Type.ERROR, msg))
-            finally:
-                session.close()
+            else:
+                app.username = username
             return redirect(url_for('.render_index'))
-    except TemplateNotFound:
-        abort(404)
 
 
-@index_page.route('/signup', methods=['GET', 'POST'])
+@page.route('/signup', methods=['GET', 'POST'])
 def render_signup():
-    if request.method == 'GET':
-        return render_template('pages/signup.html')
-    else:
-        username = request.form['username']
-        password = generate_password_hash(request.form['password'])
-        session = Session()
-        session.add(User(username=username, password=password))
-        session.commit()
-        session.close()
-        return redirect(url_for('.render_index'))
+    with ctx.SessionContext() as app:
+        if request.method == 'GET':
+            return render_template('pages/signup.html')
+        else:
+            username = request.form['username']
+            password = generate_password_hash(request.form['password'])
+            app.database.add(User(username=username, password=password))
+            app.database.commit()
+            return redirect(url_for('.render_index'))
 
 
-@index_page.route('/logout')
+@page.route('/logout')
 def render_logout():
-    flask_session['username'] = None
-    return redirect(url_for('.render_index'))
+    with ctx.SessionContext() as app:
+        app.username = None
+        return redirect(url_for('.render_index'))

@@ -30,6 +30,40 @@
             <div class="documents-wrapper">
                 <div class="document-list">
                 </div>
+                {% if page is defined and pagination is defined %}
+                    <nav aria-label="Page Navigation Panel">
+                        <ul class="pagination">
+                            <li class="page-item {{ 'disabled' if page.index == 1 }}">
+                                <a class="page-link"
+                                   href="/explorer/corpus?id={{ selected_corpus.id }}&page={{ page.index - 1 }}"
+                                   aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                    <span class="sr-only">Previous</span>
+                                </a>
+                            </li>
+                            {% for i in range([page.index - 4, 1] | max, [page.index + 4, pagination.nb_pages + 1] | min) %}
+                                {% if i == page.index %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ i }}<span class="sr-only">(current)</span></span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                           href="/explorer/corpus?id={{ selected_corpus.id }}&page={{ i }}">{{ i }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            <li class="page-item {{ 'disabled' if page.index == pagination.nb_pages }}">
+                                <a class="page-link"
+                                   href="/explorer/corpus?id={{ selected_corpus.id }}&page={{ page.index + 1 }}"
+                                   aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                    <span class="sr-only">Next</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                {% endif %}
             </div>
             <div class="annotations-wrapper">
                 <div class="create-annotation-wrapper"></div>
@@ -48,7 +82,7 @@
     <script>
         {% if selected_corpus is not none %}
             {% if selected_corpus.documents | length > 0 %}
-                const corpus = {{ selected_corpus.serialize() | safe }};
+                const corpus = {{ selected_corpus | safe }};
 
                 function renderDocument(documentList, index) {
                     let d = corpus.documents[index];
@@ -204,9 +238,6 @@
                 let documentList = $('.document-list');
                 let msg = $('<li>This corpus doesn\'t dontain any documents!</li>');
                 documentList.append(msg);
-                let createDocumentForm = $($('#create-document-template').html());
-                createDocumentForm.attr('action', '/explorer/corpus/add?id={{ selected_corpus.id }}');
-                documentList.append(createDocumentForm);
             {% endif %}
         {% else %}
             let documentList = $('.document-list');

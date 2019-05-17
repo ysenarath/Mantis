@@ -1,4 +1,4 @@
-{% macro navbar(config, username) %}
+{% macro navbar(config, user) %}
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         {% if 'brand' in config %}
             {% set brand = config.brand %}
@@ -32,10 +32,10 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-top" aria-labelledby="dropdownMenuButton">
                     <div class="profile">
-                        {% if username is defined and username is not none %}
+                        {% if user is defined and user is not none %}
                             <img class="avatar" src="{{ url_for('static', filename='img/avatar/male.svg') }}"
                                  alt="Avatar">
-                            {{ 'Logged in as ' +  username }}
+                            {{ 'Logged in as ' +  user.username }}
                         {% else %}
                             <img class="avatar" src="{{ url_for('static', filename='img/avatar/anonymous.svg') }}"
                                  alt="Avatar">
@@ -43,7 +43,7 @@
                         {% endif %}
                     </div>
                     <div class="dropdown-divider"></div>
-                    {% if username is defined and username is not none %}
+                    {% if user is defined and user is not none %}
                         <a class="dropdown-item" href='/logout'>Log out</a>
                     {% else %}
                         <a class="dropdown-item" href='/login'>Log in</a>
