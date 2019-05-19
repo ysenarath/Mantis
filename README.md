@@ -3,7 +3,7 @@
 
 Help!
 
-* Please contact the owner of this repository if someone is interested in contributing to this project.
+* Please contact the [owner](http://ysenarath.com) of this repository if someone is interested in contributing to this project.
 
 ## Screenshots
 ### Login
