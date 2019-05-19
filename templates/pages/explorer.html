@@ -1,83 +1,146 @@
 {% extends "pages/base.html" %}
 
-{% from 'blocks/templates.html' import templates %}
-
 {% block title %}
     {{ super() }} - Explorer
 {% endblock %}
 
 {% block head %}
     {{ super() }}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/explorer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/explorer.css') | safe }}">
 {% endblock %}
 
 {% block templates %}
-    {{ templates() }}
+    <template id="feature-item-template">
+        <li>
+            <div class="form-row">
+                <div class="col">
+                    <!--suppress HtmlFormInputWithoutLabel -->
+                    <input id="update-annotation-feature-name" class="form-control" name="feature_key"/>
+                </div>
+                <div class="col">
+                    <!--suppress HtmlFormInputWithoutLabel -->
+                    <input id="update-annotation-feature-value" class="form-control" name="feature_value"/>
+                </div>
+                <div class="col">
+                    <button class="btn btn-primary" type="button" data-action="remove">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+        </li>
+    </template>
+
+    <template id="create-annotation-template">
+        <form method="POST">
+            <div class="form-group">
+                <!--suppress HtmlFormInputWithoutLabel -->
+                <input name="id" class="form-control" placeholder="Document" readonly/>
+            </div>
+            <div class="form-group">
+                <!--suppress HtmlFormInputWithoutLabel -->
+                <input name="span_start" class="form-control" placeholder="Start"/>
+            </div>
+            <div class="form-group">
+                <!--suppress HtmlFormInputWithoutLabel -->
+                <input name="span_length" class="form-control" placeholder="Length"/>
+            </div>
+            <ul class="features list-unstyled"></ul>
+            <button class="btn btn-primary" type="button" data-action="create"><i class="fas fa-plus"></i></button>
+            <button class="btn btn-primary" type="submit"><i class="fas fa-check"></i></button>
+        </form>
+    </template>
+
+    <template id="update-annotation-template">
+        <form method="POST">
+            <div class="form-group">
+                <!--suppress HtmlFormInputWithoutLabel -->
+                <input name="id" class="form-control" placeholder="Document" readonly/>
+            </div>
+            <div class="form-group">
+                <!--suppress HtmlFormInputWithoutLabel -->
+                <input name="span_start" class="form-control" placeholder="Start"/>
+            </div>
+            <div class="form-group">
+                <!--suppress HtmlFormInputWithoutLabel -->
+                <input name="span_length" class="form-control" placeholder="Length"/>
+            </div>
+            <ul class="features list-unstyled"></ul>
+            <button class="btn btn-primary" type="button" data-action="create"><i class="fas fa-plus"></i></button>
+            <button class="btn btn-primary" type="submit" data-action="update"><i class="fas fa-sync"></i></button>
+            <button class="btn btn-primary" type="submit" data-action="delete"><i class="fas fa-trash"></i></button>
+        </form>
+    </template>
+
+    <template id="document-template">
+        <div class="document list-group-item">
+            <div data-name="id"></div>
+            <div data-name="text"></div>
+        </div>
+    </template>
 {% endblock %}
 
 {% block content %}
-    <div class="container-fluid">
-        <div class="explorer-wrapper">
-            <div class="corpora-wrapper">
-                <ul class="corpus-list">
-                    {% for corpus in corpora %}
-                        <ui class="corpus-item" data-id="{{ corpus.id }}">
-                            <a href="/explorer/corpus?id={{ corpus.id }}">{{ corpus.name }}</a>
-                        </ui>
-                    {% endfor %}
-                </ul>
+    <div class="explorer-wrapper">
+        <div class="corpora-wrapper">
+            <div class="list-group list-group-flush">
+                {% for corpus in corpora %}
+                    <a class="list-group-item list-group-item-action {{ 'active' if selected_corpus is not none and corpus.id == selected_corpus.id }}"
+                       href="/explorer/corpus?id={{ corpus.id }}">{{ corpus.name }}</a>
+                {% endfor %}
             </div>
-            <div class="documents-wrapper">
-                <div class="document-list">
-                </div>
-                {% if page is defined and pagination is defined %}
-                    <nav aria-label="Page Navigation Panel">
-                        <ul class="pagination">
-                            <li class="page-item {{ 'disabled' if page.index == 1 }}">
-                                <a class="page-link"
-                                   href="/explorer/corpus?id={{ selected_corpus.id }}&page={{ page.index - 1 }}"
-                                   aria-label="Previous">
-                                    <span aria-hidden="true">&laquo;</span>
-                                    <span class="sr-only">Previous</span>
-                                </a>
-                            </li>
-                            {% for i in range([page.index - 4, 1] | max, [page.index + 4, pagination.nb_pages + 1] | min) %}
-                                {% if i == page.index %}
-                                    <li class="page-item active">
-                                        <span class="page-link">{{ i }}<span class="sr-only">(current)</span></span>
-                                    </li>
-                                {% else %}
-                                    <li class="page-item">
-                                        <a class="page-link"
-                                           href="/explorer/corpus?id={{ selected_corpus.id }}&page={{ i }}">{{ i }}</a>
-                                    </li>
-                                {% endif %}
-                            {% endfor %}
-                            <li class="page-item {{ 'disabled' if page.index == pagination.nb_pages }}">
-                                <a class="page-link"
-                                   href="/explorer/corpus?id={{ selected_corpus.id }}&page={{ page.index + 1 }}"
-                                   aria-label="Next">
-                                    <span aria-hidden="true">&raquo;</span>
-                                    <span class="sr-only">Next</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                {% endif %}
+        </div>
+        <div class="documents-wrapper">
+            <div class="pu-56">
+                <div class="document-list list-group">{# Here goes the document list. Initialized by JS. #}</div>
             </div>
-            <div class="annotations-wrapper">
-                <div class="create-annotation-wrapper"></div>
-                <div class="update-annotation-wrapper"></div>
-            </div>
+            {% if page is defined and pagination is defined %}
+                <nav class="document-nav" aria-label="Page Navigation Panel">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item {{ 'disabled' if page.index == 1 }}">
+                            <a class="page-link"
+                               href="/explorer/corpus?id={{ selected_corpus.id }}&page={{ page.index - 1 }}"
+                               aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                        </li>
+                        {% for i in range([page.index - 4, 1] | max, [page.index + 4, pagination.nb_pages + 1] | min) %}
+                            {% if i == page.index %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ i }}<span class="sr-only">(current)</span></span>
+                                </li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       href="/explorer/corpus?id={{ selected_corpus.id }}&page={{ i }}">{{ i }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        <li class="page-item {{ 'disabled' if page.index == pagination.nb_pages }}">
+                            <a class="page-link"
+                               href="/explorer/corpus?id={{ selected_corpus.id }}&page={{ page.index + 1 }}"
+                               aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            {% endif %}
+        </div>
+        <div class="annotations-wrapper">
+            <div class="selected-document-wrapper"></div>
+            <div class="create-annotation-wrapper"></div>
+            <div class="update-annotation-wrapper"></div>
         </div>
     </div>
 {% endblock %}
 
 {% block body %}
     {{ super() }}
-    <script src="{{ url_for('static', filename='js/markit/markit.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/utils/utils.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/pages/explorer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/markit.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/explorer.js') }}"></script>
     <!--suppress JSDuplicatedDeclaration, JSUnresolvedVariable, JSAnnotator, JSUnusedAssignment -->
     <script>
         {% if selected_corpus is not none %}
@@ -86,9 +149,15 @@
 
                 function renderDocument(documentList, index) {
                     let d = corpus.documents[index];
-                    let li = document.createElement('div');
-                    li.setAttribute('class', 'markit');
-                    li.setAttribute('data-index', index);
+                    let template = $($('#document-template').html());
+                    if (corpus.active !== null && corpus.active.id === d.id) {
+                        // Process active document
+                        template.addClass('active')
+                    }
+                    let document_text = template.find('div[data-name=text]');
+                    document_text.attr('class', 'markit');
+                    document_text.attr('data-index', index);
+                    template.find('div[data-name=id]').html(d.id);
                     const ranges = [];
                     let start = null;
                     if (corpus.active !== null && corpus.active === d) {
@@ -118,12 +187,12 @@
                                 suffix = suffix.slice(len);
                             }
                         }
-                        $(li).html(prefix + suffix);
+                        document_text.html(prefix + suffix);
                     } else {
-                        $(li).html(d.text);
+                        document_text.html(d.text);
                     }
-                    markit.load(li);
-                    documentList.append(li);
+                    markit.load(document_text[0]);
+                    documentList.append(template);
                 }
 
                 function renderDocumentList() {
@@ -132,9 +201,6 @@
                     for (let i = 0; i < corpus.documents.length; i++) {
                         renderDocument(documentList, i);
                     }
-                    let createDocumentForm = $($('#create-document-template').html());
-                    createDocumentForm.attr('action', '/explorer/corpus/add?id={{ selected_corpus.id }}');
-                    documentList.append(createDocumentForm);
                 }
 
                 function renderFeature(template, key = '', value = '') {

@@ -3,7 +3,7 @@ import logging
 from flask import Blueprint, render_template, redirect, url_for, request
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
-from mantis.model import Corpus, Message, Document
+from mantis.model import Corpus, Message, Document, serialize
 from mantis.utils import ctx
 
 __all__ = [
@@ -15,10 +15,19 @@ page = Blueprint('corpus_page', __name__, template_folder='templates')
 logger = logging.getLogger(__name__)
 
 
+def serialize_corpora(e):
+    corpora = serialize(e.database.query(Corpus).all())
+    for corpus in corpora:
+        corpus['documents'] = {
+            'length': e.database.query(Document).filter_by(corpus_id=corpus['id']).count()
+        }
+    return corpora
+
+
 @page.route('/', methods=['GET'])
 def render_corpus():
     with ctx.SessionContext() as app:
-        corpora = app.database.query(Corpus).all()
+        corpora = serialize_corpora(app)
         html = render_template('pages/corpus.html', messages=app.messages, corpora=corpora, mode='view')
         app.clear('messages')
         return html
@@ -82,7 +91,7 @@ def render_corpus_edit():
                     msg = 'No such corpus with ID \'{}\' to delete.'.format(id_)
                     app.messages.append(Message(Message.Type.ERROR, msg))
             else:
-                corpora = app.database.query(Corpus).all()
+                corpora = serialize_corpora(app)
                 html = render_template(
                     'pages/corpus.html', messages=app.messages, corpora=corpora, mode='edit', edit_id=id_
                 )

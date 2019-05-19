@@ -32,7 +32,7 @@ def serialize_documents(documents):
 def render_explorer_corpus():
     with ctx.SessionContext() as app:
         id_ = request.args.get('id', None, int)
-        page = request.args.get('page', 1, int)
+        index = request.args.get('page', 1, int)
         if id_ is not None:
             if app.username is not None:
                 try:
@@ -50,17 +50,17 @@ def render_explorer_corpus():
                     else:
                         qry_documents = app.database.query(Document).filter_by(corpus_id=id_)
                         pagination = Pagination(qry_documents)
-                        page = pagination.get(page)
-                        sel_corpus = {**sel_corpus.serialize(), **serialize_documents(page.items)}
+                        page_ = pagination.get(index)
+                        sel_corpus = {**sel_corpus.serialize(), **serialize_documents(page_.items)}
                         html = render_template(
                             'pages/explorer.html',
                             messages=app.messages, corpora=corpora, selected_corpus=sel_corpus, pagination=pagination,
-                            page=page
+                            page=page_
                         )
                         app.clear('messages')
                         return html
             else:
-                msg = 'Please login to view/create annotations'
+                msg = 'Please login to view documents.'
                 app.messages.append(Message(Message.Type.ERROR, msg))
         else:
             msg = 'Invalid value for parameter ID. ' \

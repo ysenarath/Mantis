@@ -11,12 +11,12 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title>{% block title %}{{ configs.title }}{% endblock %}</title>
         <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.css') }}">
         <!-- Custom CSS -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/base.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
         <!-- Font Awesome JS -->
-        <script src="{{ url_for('static', filename='fontawesome/js/solid.js') }}"></script>
-        <script src="{{ url_for('static', filename='fontawesome/js/fontawesome.js') }}"></script>
+        <script src="{{ url_for('static', filename='vendor/fontawesome/js/solid.js') }}"></script>
+        <script src="{{ url_for('static', filename='vendor/fontawesome/js/fontawesome.js') }}"></script>
     {% endblock %}
 </head>
 
@@ -40,13 +40,13 @@
 
     {% block templates %}{% endblock %}
 
-    <script src="{{ url_for('static', filename='js/jquery/jquery-3.4.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/jquery/jquery-3.4.0.min.js') }}"></script>
     <!-- Popper.JS -->
-    <script src="{{ url_for('static', filename='js/popper/popper.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/popper/popper.min.js') }}"></script>
     <!-- Bootstrap JS -->
-    <script src="{{ url_for('static', filename='js/bootstrap/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.js') }}"></script>
     <!-- Base JS -->
-    <script src="{{ url_for('static', filename='js/pages/base.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/base.js') }}"></script>
 {% endblock %}
 </body>
 

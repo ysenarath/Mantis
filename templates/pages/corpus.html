@@ -7,7 +7,7 @@
 {% block head %}
     {{ super() }}
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/corpus.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/corpus.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -37,7 +37,7 @@
                                        aria-describedby="corpusNameHelp" placeholder="Corpus Name"
                                        value="{{ corpus.name }}">
                             </td>
-                            <td>{{ corpus.documents | length }}</td>
+                            <td>{{ corpus.documents.length }}</td>
                             <td>
                                 <div class="btn-group" role="group" aria-label="Action Buttons">
                                     <button class="btn btn-primary" type="submit" form="editCorpusForm">
