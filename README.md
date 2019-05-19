@@ -1,4 +1,4 @@
-# Mantis: A micro framework for language processing and annotation
+# Mantis: A Micro Framework for Annotation of Textual Data
 
 ## Screenshots
 ### Login
