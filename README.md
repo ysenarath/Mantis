@@ -1,4 +1,5 @@
-# Mantis: A Micro Framework for Annotation of Textual Data
+# Mantis
+-- A Micro Framework for Annotation of Textual Data
 
 ## Screenshots
 ### Login
