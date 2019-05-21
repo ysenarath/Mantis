@@ -42,7 +42,7 @@ class Pagination:
         else:
             self.nb_pages = 1
 
-    def get(self, page: int = 1):
+    def get(self, page=1):
         if self.nb_pages < page:
             page = self.nb_pages
         if page <= 0:
