@@ -24,7 +24,7 @@
 .document-list {
     height: 100%;
     overflow-y: scroll;
-    padding: 15px 0 15px 15px;
+    padding: 15px;
 }
 
 .annotations-wrapper {

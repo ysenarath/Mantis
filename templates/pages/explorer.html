@@ -21,7 +21,7 @@
                     <!--suppress HtmlFormInputWithoutLabel -->
                     <input id="update-annotation-feature-value" class="form-control" name="feature_value"/>
                 </div>
-                <div class="col">
+                <div class="col-auto">
                     <button class="btn btn-primary" type="button" data-action="remove">
                         <i class="fas fa-minus"></i>
                     </button>
@@ -73,8 +73,14 @@
 
     <template id="document-template">
         <div class="document list-group-item">
-            <div data-name="id"></div>
-            <div data-name="text"></div>
+            <div class="row">
+                <div class="col-auto">
+                    <div data-name="id"></div>
+                </div>
+                <div class="col">
+                    <div data-name="text"></div>
+                </div>
+            </div>
         </div>
     </template>
 {% endblock %}
@@ -147,6 +153,15 @@
             {% if selected_corpus.documents | length > 0 %}
                 const corpus = {{ selected_corpus | safe }};
 
+                function getRandomColor() {
+                    let letters = '0123456789ABCDEF';
+                    let color = '#';
+                    for (let i = 0; i < 6; i++) {
+                        color += letters[Math.floor(Math.random() * 16)];
+                    }
+                    return color;
+                }
+
                 function renderDocument(documentList, index) {
                     let d = corpus.documents[index];
                     let template = $($('#document-template').html());
@@ -177,9 +192,15 @@
                         let prefix = d.text.slice(0, start), suffix = d.text.slice(start);
                         for (let i = 0; i < d.sections.length; i++) {
                             let len = d.sections[i][0];
+                            let colors = ['green', 'orange', 'purple', 'blue'];
                             if (d.sections[i][1].length > 0) {
-                                let mark = $('<mark onmousedown="select(' + index + ', ' + i + ')" style="cursor:pointer;"></mark>');
+                                let mark = $('<mark onmousedown="select(' + index + ', ' + i + ')" style="cursor:pointer; background-color: white; padding: 0"></mark>');
                                 mark.html(suffix.slice(0, len));
+                                let nb_mark = d.sections[i][1].length;
+                                if (nb_mark > colors.length - 1) nb_mark = colors.length - 1;
+                                for (let j = 0; j < nb_mark; j++) {
+                                    mark = mark.wrap('<mark style="padding: 0 0 ' + (j + 1) * 4 + 'px; background-color: ' + colors[j] + ';' + '"' + '></mark>').parent()
+                                }
                                 prefix += mark.wrap('<div></div>').parent().html();
                                 suffix = suffix.slice(len);
                             } else {
