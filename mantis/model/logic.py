@@ -43,10 +43,10 @@ class Pagination:
             self.nb_pages = 1
 
     def get(self, page: int = 1):
-        if page <= 0:
-            page = 1
         if self.nb_pages < page:
             page = self.nb_pages
+        if page <= 0:
+            page = 1
         items = self.query.limit(self.page_size).offset((page - 1) * self.page_size).all()
         return Page(page, items)
 
