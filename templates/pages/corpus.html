@@ -53,7 +53,7 @@
                         <tr>
                             <th scope="row">{{ corpus.id }}</th>
                             <td>{{ corpus.name }}</td>
-                            <td>{{ corpus.documents | length }}</td>
+                            <td>{{ corpus.documents.length }}</td>
                             <td>
                                 <div class="btn-group" role="group" aria-label="Action Buttons">
                                     <a class="btn btn-primary" role="button" href="/corpus/edit?id={{ corpus.id }}">
@@ -64,11 +64,11 @@
                                     </a>
                                     <form enctype="multipart/form-data" action="/corpus/add?id={{ corpus.id }}"
                                           method="post" hidden>
-                                        <input id="hiddenFileBtn" class="btn btn-primary" type=file name=file
-                                               onchange="this.form.submit()">
+                                        <input class="btn btn-primary" type=file name=file
+                                               data-id="file-btn-{{ corpus.id }}" onchange="this.form.submit()">
                                     </form>
                                     <button id="uploadDocumentBtn" class="btn btn-primary" type=button
-                                            onclick="$('#hiddenFileBtn').click()">
+                                            onclick="$('input[data-id=file-btn-{{ corpus.id }}]').click()">
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </div>

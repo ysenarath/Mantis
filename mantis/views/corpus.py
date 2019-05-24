@@ -109,14 +109,13 @@ def allowed_file(filename):
 
 @page.route('/add', methods=['POST'])
 def render_corpus_document_add():
-    messages = []
-    id_ = request.args.get('id', None, int)
-    if id_ is not None:
-        if 'file' in request.files:
-            file = request.files['file']
-            if file.filename != '':
-                if file and allowed_file(file.filename):
-                    with ctx.SessionContext() as app:
+    with ctx.SessionContext() as app:
+        id_ = request.args.get('id', None, int)
+        if id_ is not None:
+            if 'file' in request.files:
+                file = request.files['file']
+                if file.filename != '':
+                    if file and allowed_file(file.filename):
                         file_data = file.read().decode('utf-8')  # latin-1
                         for line in file_data.split('\n'):
                             text = line.strip()
@@ -124,18 +123,18 @@ def render_corpus_document_add():
                             app.database.add(document)
                         app.database.commit()
                         msg = 'Documents added to Corpus with ID = `{}` successfully'.format(id_)
-                        messages.append(Message(Message.Type.SUCCESS, msg))
+                        app.messages.append(Message(Message.Type.SUCCESS, msg))
+                    else:
+                        msg = 'File not allowed in the system'
+                        app.messages.append(Message(Message.Type.ERROR, msg))
                 else:
-                    msg = 'File not allowed in the system'
-                    messages.append(Message(Message.Type.ERROR, msg))
+                    msg = 'No selected file'
+                    app.messages.append(Message(Message.Type.ERROR, msg))
             else:
-                msg = 'No selected file'
-                messages.append(Message(Message.Type.ERROR, msg))
+                msg = 'No file part'
+                app.messages.append(Message(Message.Type.ERROR, msg))
         else:
-            msg = 'No file part'
-            messages.append(Message(Message.Type.ERROR, msg))
-    else:
-        msg = 'Invalid value for parameter ID. ' \
-              'Found \'{}\' expected an integer'.format(request.args.get('id', None))
-        messages.append(Message(Message.Type.ERROR, msg))
+            msg = 'Invalid value for parameter ID. ' \
+                  'Found \'{}\' expected an integer'.format(request.args.get('id', None))
+            app.messages.append(Message(Message.Type.ERROR, msg))
     return redirect(url_for('.render_corpus'))
