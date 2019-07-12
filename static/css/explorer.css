@@ -9,6 +9,7 @@
 .corpora-wrapper {
     min-width: 200px;
     max-width: 200px;
+    background: var(--light);
 }
 
 .documents-wrapper {
