@@ -24,8 +24,10 @@ def inject_user():
 
 @page.route('/')
 def render_index():
-    with ctx.SessionContext() as _:
-        return render_template('pages/index.html')
+    with ctx.SessionContext() as app:
+        html = render_template('pages/index.html', messages=app.messages)
+        app.clear('messages')
+        return html
 
 
 @page.route('/login', methods=['GET', 'POST'])
